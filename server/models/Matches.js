@@ -4,7 +4,6 @@ const Schema = mongoose.Schema
 
 // Create schema
 const MatchSchema = new Schema({
-
   playerOne: {
     type: String,
     required: true

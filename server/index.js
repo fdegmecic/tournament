@@ -12,13 +12,13 @@ app.use(cors());
 const players = require('./routes/api/players');
 const matches = require('./routes/api/matches');
 
-app.use('/players', players);
+app.use('/api/players', players);
 app.use('/api/matches', matches);
 
 const db = require("./config/keys/key_dev").mongoURI
 
   mongoose
-    .connect(db, { useNewUrlParser: true, useUnifiedTopology: true })
+    .connect(db, { useNewUrlParser: true, useUnifiedTopology: true, useFindAndModify: false })
     .then(() => console.log("MongoDB connected"))
     .catch(err => console.log(err))
 
