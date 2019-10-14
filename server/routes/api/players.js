@@ -1,44 +1,13 @@
-const express = require('express');
-const mongodb = require('mongodb');
+const express = require("express")
+const router = express.Router()
 
-const router = express.Router();
+// Load models
+const Player = require("../../models/Players")
 
-//get posts
-router.get('/', async (req, res) =>{
-    const players = await loadPlayersCollection();
-    res.send(await players.find({}).toArray()); 
-})
-//add posts
-router.post('/', async(req,res)=>{
-    const players = await loadPlayersCollection();
-    await players.insertOne({
-        name:req.body.name,
-        wins:req.body.wins
+router.get("/", (req, res) => {
+    Player.find()
+      .then(player => res.json(player))
+      .catch(err => res.status(404).json({ message: "No players where found" }))
+  })
 
-    });
-    res.status(201).send();
-})
-
-//delete posts
-router.delete('/:id', async(req,res)=>{
-    const players = await loadPlayersCollection();
-    await players.deleteOne({_id: new mongodb.ObjectID(req.params.id)});
-    res.status(200).send();
-})
-
-router.patch('/:id', async (req,res)=>{
-    const players = await loadMatchesCollection();
-    await players.updateOne({_id: new mongodb.ObjectID(req.params.id)},
-    {$set:{wins:req.body.wins}})
-    res.status(200).send();
- }
-) 
-
-async function loadPlayersCollection(){
-    const client = await mongodb.MongoClient.connect('mongodb+srv://admin:admin@ygotournament-r8mxj.mongodb.net/test?retryWrites=true&w=majority', {
-        useNewUrlParser:true,
-        useUnifiedTopology: true
-    });
-    return client.db('ygotournament').collection('players');
-}
-module.exports = router;
+  module.exports = router

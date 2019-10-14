@@ -1,6 +1,7 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
+const mongoose = require("mongoose")
 
 const app = express();
 
@@ -11,8 +12,15 @@ app.use(cors());
 const players = require('./routes/api/players');
 const matches = require('./routes/api/matches');
 
-app.use('/api/players', players);
+app.use('/players', players);
 app.use('/api/matches', matches);
+
+const db = require("./config/keys/key_dev").mongoURI
+
+  mongoose
+    .connect(db, { useNewUrlParser: true, useUnifiedTopology: true })
+    .then(() => console.log("MongoDB connected"))
+    .catch(err => console.log(err))
 
 
 const port = process.env.PORT || 5000;
