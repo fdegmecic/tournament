@@ -15,7 +15,8 @@
       v-bind:item="player"
       v-bind:index="index"
       v-bind:key="player._id"
-      v-on:dblclick="deletePlayer(player._id)">
+      v-on:dblclick="deletePlayer(player._id)"
+      v-on:update-wins="updateWins">
       <p class="text">{{ player.name }}</p>
       <p class="text"> Wins: {{ player.wins }}</p>
       </div>
@@ -49,7 +50,13 @@ export default {
     async deletePlayer(id){
       await PlayerService.deletePlayer(id);
       this.players = await PlayerService.getPlayers();
-    }
+    },
+    updateWins(){
+            console.log(1)
+        }    
+  },
+  computed:{
+    
   }
 }
 </script>

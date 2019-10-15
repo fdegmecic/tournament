@@ -20,13 +20,12 @@
             <p>Nedovršeni mečevi</p>
             <ul>
                 <li v-bind:key="match._id"
-                v-for="match in unfinishedMatch"
-                >
+                v-for="match in unfinishedMatch">
                     {{match.playerOne}}
-                    <button v-on:click="updateMatch(match._id,result=1)">Winner</button>
+                    <button v-on:click="updateMatch(match._id,result=1), decidePlayer(match._id, result), $emit('update-wins')">Winner</button>
                     vs.
                     {{match.playerTwo}}
-                    <button v-on:click="updateMatch(match._id,result=2), updatePlayer()">Winner</button>
+                    <button v-on:click="updateMatch(match._id,result=2), decidePlayer(match._id, result), $emit('update-wins')">Winner</button>
                 </li>
             </ul>
         </div>
@@ -75,9 +74,24 @@ export default {
         async updateMatch(id){
             await MatchService.updateMatch(id,this.result);
             this.matches=await MatchService.getMatches();
+            
         },
-         updatePlayer(){
-            console.log("hello");
+        async decidePlayer(id){
+                if(this.result==1){
+                   const winner = this.matches.filter(match => match._id == id).map(match=>{ return match.playerOne})
+                   const winnerId = this.players.filter(player=>player.name==winner).map(player=>{return player._id})
+                   var winnerPoints = this.players.filter(player=>player.name==winner).map(player=>{return player.wins})
+                   winnerPoints++;
+                   await PlayerService.updatePlayer(winnerId, winnerPoints) 
+                }
+                if(this.result==2){
+                   const winner1 = this.matches.filter(match => match._id == id).map(match=>{ return match.playerTwo})
+                   const winnerId1 = this.players.filter(player=>player.name==winner1).map(player=>{return player._id})
+                   var winnerPoints1 = this.players.filter(player=>player.name==winner1).map(player=>{return player.wins})
+                   winnerPoints1++;
+                   await PlayerService.updatePlayer(winnerId1, winnerPoints1)                 
+                }
+                this.players = await PlayerService.getPlayers();
         }
     },
     computed:{
