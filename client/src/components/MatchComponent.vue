@@ -2,17 +2,27 @@
     <div class="container">
         <p>Dodaj meč</p>
         <div class="create-match">
-            <label for="create-match">Select players: </label>
+            <label >Select tournament: </label>    
+            <select v-model="tournament">
+                <option v-for="tournament in tournaments"
+                v-bind:key="tournament.name"
+                v-bind:item="tournament">
+                {{tournament.name}}
+                </option>
+            </select>
+            <label >Select players: </label>
             <select v-model="playerOne">
-                <option v-for="(player) in players"
-            v-bind:key="player._id"
-            >{{player.name}}</option>
+                <option v-for="player in players"
+                v-bind:key="player._id">
+                {{player.name}}
+                </option>
             </select>
             vs.
             <select v-model="playerTwo">
-                <option v-for="(player) in players"
-            v-bind:key="player._id"
-            >{{player.name}}</option>
+                <option v-for="player in players"
+                v-bind:key="player._id"
+                >{{player.name}}
+                </option>
             </select>
             <button v-on:click="createMatch">Dodaj</button>
         </div>
@@ -22,18 +32,17 @@
                 <li v-bind:key="match._id"
                 v-for="match in unfinishedMatch">
                     {{match.playerOne}}
-                    <button v-on:click="updateMatch(match._id,result=1), decidePlayer(match._id, result), $emit('update-wins')">Winner</button>
+                    <button v-on:click="updateMatch(match._id,result=1), decidePlayer(match._id)" @click="$emit('update-wins')">Winner</button>
                     vs.
                     {{match.playerTwo}}
-                    <button v-on:click="updateMatch(match._id,result=2), decidePlayer(match._id, result), $emit('update-wins')">Winner</button>
+                    <button v-on:click="updateMatch(match._id,result=2), decidePlayer(match._id), $emit('update-wins')">Winner</button>
                 </li>
             </ul>
         </div>
         <div class="container">
             <p>Dovršeni mečevi</p>
                 <div v-bind:key="match._id"
-                v-for="match in finishedMatch"
-                >
+                v-for="match in finishedMatch">
                     {{match.playerOne}}
                     vs.
                     {{match.playerTwo}}
@@ -46,27 +55,32 @@
 <script>
 import PlayerService from '../PlayerService'
 import MatchService from '../MatchService'
+import TournamentService from '../TournamentService';
 export default {
     name:'MatchComponent',
     data(){
         return{
             players:[],
             matches:[],
+            tournaments:[],
             playerOne:'',
-            playerTwo:''
+            playerTwo:'',
+            tournament:''
         }
     },
     async created(){
         try{
         this.players = await PlayerService.getPlayers();
         this.matches = await MatchService.getMatches();
+        this.tournaments = await TournamentService.getTournaments();
         }catch(err){
         this.error=err.message;
         }
     },
     methods:{
         async createMatch(){
-            await MatchService.insertMatch(this.playerOne,this.playerTwo);
+            const tournamentId = this.tournaments.filter(tournament => tournament.name == this.tournament).map(tournament=>{ return tournament._id})
+            await MatchService.insertMatch(this.playerOne,this.playerTwo, tournamentId);
             this.matches=await MatchService.getMatches();
             this.playerOne ='';
             this.playerTwo='';
@@ -91,7 +105,6 @@ export default {
                    winnerPoints1++;
                    await PlayerService.updatePlayer(winnerId1, winnerPoints1)                 
                 }
-                this.players = await PlayerService.getPlayers();
         }
     },
     computed:{

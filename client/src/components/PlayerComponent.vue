@@ -52,8 +52,8 @@ export default {
       this.players = await PlayerService.getPlayers();
     },
     updateWins(){
-            console.log(1)
-        }    
+      console.log(1)
+    }    
   },
   computed:{
     

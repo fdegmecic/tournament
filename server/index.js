@@ -11,9 +11,11 @@ app.use(cors());
 
 const players = require('./routes/api/players');
 const matches = require('./routes/api/matches');
+const tournaments = require('./routes/api/tournaments');
 
 app.use('/api/players', players);
 app.use('/api/matches', matches);
+app.use('/api/tournaments', tournaments);
 
 const db = require("./config/keys/key_dev").mongoURI
 

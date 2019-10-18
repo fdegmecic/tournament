@@ -15,6 +15,10 @@ const MatchSchema = new Schema({
   result: {
     type: Number,
     required: true
+  },
+  tournament:{
+    type: Schema.Types.ObjectId, ref:'Tournaments',
+    required:true 
   }
 })
 

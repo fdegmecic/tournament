@@ -12,10 +12,7 @@ router.get("/", (req, res) => {
 router.post("/", (req, res) => {
     Match.findOne({ name: req.body.name })
       .then(match => {
-          const newMatch = new Match(
-            {playerOne: req.body.playerOne,
-            playerTwo:req.body.playerTwo,
-            result:req.body.result})
+          const newMatch = new Match(req.body)
             newMatch.save()
             .then(newMatch => res.json(newMatch))
             .catch(err => res.json(err))
