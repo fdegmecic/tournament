@@ -31,24 +31,32 @@
             <ul>
                 <li v-bind:key="match._id"
                 v-for="match in unfinishedMatch">
-                    {{match.playerOne}}
-                    <button v-on:click="updateMatch(match._id,result=1), decidePlayer(match._id)" @click="$emit('update-wins')">Winner</button>
+                    {{playerName(match.playerOneId)}}
+                    <button v-on:click="updateMatch(match._id,result=1), updateWinner(match._id)">Winner</button>
                     vs.
-                    {{match.playerTwo}}
-                    <button v-on:click="updateMatch(match._id,result=2), decidePlayer(match._id), $emit('update-wins')">Winner</button>
+                    {{playerName(match.playerTwoId)}}
+                    <button v-on:click="updateMatch(match._id,result=2), updateWinner(match._id)">Winner</button>
                 </li>
             </ul>
         </div>
         <div class="container">
             <p>Dovršeni mečevi</p>
-                <div v-bind:key="match._id"
-                v-for="match in finishedMatch">
-                    {{match.playerOne}}
-                    vs.
-                    {{match.playerTwo}}
-                    <span v-if="match.result==1">WINNER: {{match.playerOne}}</span>
-                    <span v-if="match.result==2">WINNER: {{match.playerTwo}}</span>      
-                </div>
+            <label >Select tournament to see the matches: </label>    
+            <select v-model="tournamentMatch">
+                <option v-for="tournament in tournaments"
+                v-bind:key="tournament.name"
+                v-bind:item="tournament">
+                {{tournament.name}}
+                </option>
+            </select>
+            <div v-bind:key="match._id"
+                v-for="match in matchFilter">
+                {{playerName(match.playerOneId)}}
+                vs.
+                {{playerName(match.playerTwoId)}}
+                <span v-if="match.result==1">WINNER: {{playerName(match.playerOneId)}}</span>
+                <span v-if="match.result==2">WINNER: {{playerName(match.playerTwoId)}}</span>      
+            </div>
         </div>
     </div>
 </template>
@@ -65,7 +73,8 @@ export default {
             tournaments:[],
             playerOne:'',
             playerTwo:'',
-            tournament:''
+            tournament:'',
+            tournamentMatch:''
         }
     },
     async created(){
@@ -80,7 +89,9 @@ export default {
     methods:{
         async createMatch(){
             const tournamentId = this.tournaments.filter(tournament => tournament.name == this.tournament).map(tournament=>{ return tournament._id})
-            await MatchService.insertMatch(this.playerOne,this.playerTwo, tournamentId);
+            const playerOneId = this.players.filter(player => player.name == this.playerOne).map(player=>{ return player._id})
+            const playerTwoId = this.players.filter(player => player.name == this.playerTwo).map(player=>{ return player._id})
+            await MatchService.insertMatch(playerOneId, playerTwoId, tournamentId);
             this.matches=await MatchService.getMatches();
             this.playerOne ='';
             this.playerTwo='';
@@ -90,21 +101,23 @@ export default {
             this.matches=await MatchService.getMatches();
             
         },
-        async decidePlayer(id){
+        async updateWinner(id){
                 if(this.result==1){
-                   const winner = this.matches.filter(match => match._id == id).map(match=>{ return match.playerOne})
-                   const winnerId = this.players.filter(player=>player.name==winner).map(player=>{return player._id})
+                   const winner = this.matches.filter(match => match._id == id).map(match=>{ return match.playerOneId})
                    var winnerPoints = this.players.filter(player=>player.name==winner).map(player=>{return player.wins})
                    winnerPoints++;
-                   await PlayerService.updatePlayer(winnerId, winnerPoints) 
+                   await PlayerService.updatePlayer(winner, winnerPoints) 
                 }
                 if(this.result==2){
-                   const winner1 = this.matches.filter(match => match._id == id).map(match=>{ return match.playerTwo})
-                   const winnerId1 = this.players.filter(player=>player.name==winner1).map(player=>{return player._id})
+                   const winner1 = this.matches.filter(match => match._id == id).map(match=>{ return match.playerTwoId})
                    var winnerPoints1 = this.players.filter(player=>player.name==winner1).map(player=>{return player.wins})
                    winnerPoints1++;
-                   await PlayerService.updatePlayer(winnerId1, winnerPoints1)                 
+                   await PlayerService.updatePlayer(winner1, winnerPoints1)                 
                 }
+        },
+         playerName(id){
+            const playerName = this.players.filter(player => player._id == id).map(player => {return player.name})
+            return playerName
         }
     },
     computed:{
@@ -113,6 +126,10 @@ export default {
         },
         finishedMatch(){
             return this.matches.filter(match=>match.result!==0)
+        },
+        matchFilter(){
+            const tournamentIdMatch = this.tournaments.filter(tournament => tournament.name == this.tournamentMatch).map(tournament=>{ return tournament._id})
+            return this.matches.filter(match=>match.tournament==tournamentIdMatch && match.result!=0) 
         }
     }
     

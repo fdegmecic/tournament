@@ -4,12 +4,12 @@ const Schema = mongoose.Schema
 
 // Create schema
 const MatchSchema = new Schema({
-  playerOne: {
-    type: String,
+  playerOneId: {
+    type:  Schema.Types.ObjectId, ref:'Players',
     required: true
   },
-  playerTwo: {
-    type: String,
+  playerTwoId: {
+    type:  Schema.Types.ObjectId, ref:'Players',
     required: true
   },
   result: {

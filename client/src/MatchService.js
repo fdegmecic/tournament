@@ -16,10 +16,10 @@ class MatchService {
             }
         })
     }
-    static insertMatch(playerOne,playerTwo, tournament){
+    static insertMatch(playerOneId, playerTwoId, tournament){
         return axios.post(url, {
-            playerOne,
-            playerTwo,
+            playerOneId,
+            playerTwoId,
             result:0,
             tournament            
         })

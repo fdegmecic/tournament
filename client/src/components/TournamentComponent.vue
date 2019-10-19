@@ -23,7 +23,7 @@ export default {
     name:'TournamentComponent',
     data(){
         return{
-            tournaments: [],
+            tournaments:[],
             name:''
         }
     },
@@ -36,9 +36,9 @@ export default {
     },
     methods:{
         async createTournament(){
-            await TournamentService.insertMatch(this.name);
-            this.matches=await TournamentService.getMatches();
-            this.tournaments ='';
+            await TournamentService.inserTournament(this.name);
+            this.tournaments=await TournamentService.getTournaments();
+            this.name ='';
         }
     }
 }
